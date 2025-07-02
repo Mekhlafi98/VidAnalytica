@@ -32,8 +32,9 @@ const schema = new mongoose.Schema({
   refreshToken: {
     type: String,
     unique: true,
+    sparse: true, // Allow null values to be non-unique
     index: true,
-    default: () => randomUUID(),
+    default: null,
   },
 }, {
   versionKey: false,

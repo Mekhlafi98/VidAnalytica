@@ -4,10 +4,11 @@ const { requireUser } = require('./middleware/auth.js');
 const User = require('../models/User.js');
 const { generateAccessToken, generateRefreshToken } = require('../utils/auth.js');
 const jwt = require('jsonwebtoken');
+const { authLimiter } = require('../middleware/security.js');
 
 const router = express.Router();
 
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   const sendError = msg => res.status(400).json({ message: msg });
   const { email, password } = req.body;
 
@@ -30,7 +31,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/register', async (req, res, next) => {
+router.post('/register', authLimiter, async (req, res, next) => {
   if (req.user) {
     return res.json({ user: req.user });
   }
@@ -38,8 +39,11 @@ router.post('/register', async (req, res, next) => {
     const user = await UserService.create(req.body);
     return res.status(200).json(user);
   } catch (error) {
-    console.error(`Error while registering user: ${error}`);
-    return res.status(400).json({ error });
+    console.error(`Error while registering user: ${error.message}`);
+    return res.status(400).json({ 
+      message: error.message || 'Registration failed',
+      success: false 
+    });
   }
 });
 
