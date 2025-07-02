@@ -2,7 +2,10 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-export default defineConfig({
+const repoName = "VidAnalytica";
+
+export default defineConfig(({ mode }) => ({
+  base: `/${repoName}/`,
   plugins: [react()],
   resolve: {
     alias: {
@@ -11,7 +14,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    proxy: {
+    proxy: mode === 'development' ? {
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
@@ -20,13 +23,10 @@ export default defineConfig({
         target: 'http://localhost:4444',
         changeOrigin: true,
       }
-    },
-    allowedHosts: [
-      'localhost',
-      '.pythagora.ai'
-    ],
+    } : undefined,
+    allowedHosts: ['localhost', '.pythagora.ai'],
     watch: {
       ignored: ['**/node_modules/**', '**/dist/**', '**/public/**', '**/log/**']
     }
   },
-})
+}));
