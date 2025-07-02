@@ -19,14 +19,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const response = await apiLogin(email, password);
-      if (response?.refreshToken || response?.accessToken) {
+      if (response?.refreshToken && response?.accessToken) {
         localStorage.setItem("refreshToken", response.refreshToken);
         localStorage.setItem("accessToken", response.accessToken);
         setIsAuthenticated(true);
       } else {
-        throw new Error(error?.response?.data?.message || 'Login failed');
+        throw new Error('Invalid response from server');
       }
-    } catch (error) {
+    } catch (error: any) {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("accessToken");
       setIsAuthenticated(false);
@@ -37,7 +37,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (email: string, password: string) => {
     try {
       const response = await apiRegister(email, password);
-    } catch (error) {
+      // Note: Registration doesn't automatically log in the user
+      // They need to login separately after registration
+      return response;
+    } catch (error: any) {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("accessToken");
       setIsAuthenticated(false);
