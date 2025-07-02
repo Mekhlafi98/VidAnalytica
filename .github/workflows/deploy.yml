@@ -20,14 +20,14 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: VidAnalytica/client
+        working-directory: client
 
       - name: Build Vite app
         run: npm run build
-        working-directory: VidAnalytica/client
+        working-directory: client
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: VidAnalytica/client/dist
+          publish_dir: client/dist
