@@ -38,8 +38,8 @@ export function Transcripts() {
   const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedChannel, setSelectedChannel] = useState<string>("")
-  const [statusFilter, setStatusFilter] = useState<string>("")
+  const [selectedChannel, setSelectedChannel] = useState<string>("all")  // default "all"
+  const [statusFilter, setStatusFilter] = useState<string>("all")       // default "all"
   const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null)
   const [editingTranscript, setEditingTranscript] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
@@ -47,7 +47,7 @@ export function Transcripts() {
 
   useEffect(() => {
     loadData()
-  }, [selectedChannel, statusFilter])
+  }, [selectedChannel, statusFilter, searchTerm]) // add searchTerm for filtering on search change
 
   const loadData = async () => {
     try {
@@ -55,8 +55,8 @@ export function Transcripts() {
       console.log('Loading transcripts and channels...')
       const [transcriptsResponse, channelsResponse] = await Promise.all([
         getTranscripts({
-          channelId: selectedChannel && selectedChannel !== "all" ? selectedChannel : undefined,
-          status: statusFilter && statusFilter !== "all" ? statusFilter : undefined,
+          channelId: selectedChannel !== "all" ? selectedChannel : undefined,
+          status: statusFilter !== "all" ? statusFilter : undefined,
           search: searchTerm || undefined
         }),
         getChannels()
@@ -102,7 +102,6 @@ export function Transcripts() {
       console.log('Updating transcript:', editingTranscript)
       await updateTranscript(editingTranscript, { content: editContent })
       
-      // Update local state
       setTranscripts(transcripts.map(t =>
         t._id === editingTranscript ? { ...t, content: editContent } : t
       ))
@@ -234,7 +233,7 @@ export function Transcripts() {
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
           <SelectContent className="bg-background/95 backdrop-blur-sm">
-            <SelectItem value="">All Status</SelectItem>
+            <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="processing">Processing</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
