@@ -44,9 +44,11 @@ export function Ideas() {
   const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedChannel, setSelectedChannel] = useState<string>("")
+  const [selectedChannel, setSelectedChannel] = useState<string>("all")
   const [categoryFilter, setCategoryFilter] = useState<string>("")
   const [showFavorites, setShowFavorites] = useState(false)
+  // 🟢 state starts at "all"
+
   const { toast } = useToast()
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function Ideas() {
       console.log('Loading ideas and channels...')
       const [ideasResponse, channelsResponse] = await Promise.all([
         getIdeas({
-          channelId: selectedChannel && selectedChannel !== "all" ? selectedChannel : undefined,
+          channelId: selectedChannel !== "all" ? selectedChannel : undefined,
           category: categoryFilter && categoryFilter !== "all" ? categoryFilter : undefined,
           search: searchTerm || undefined
         }),
@@ -234,16 +236,21 @@ export function Ideas() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+        <Select value={selectedChannel} onValueChange={setSelectedChannel}>
           <SelectTrigger className="w-48 bg-background/50">
-            <SelectValue placeholder="All Categories" />
+            {/* placeholder is only shown while value === "all" but you can omit it if you like */}
+            <SelectValue placeholder="All Channels" />
           </SelectTrigger>
+
           <SelectContent className="bg-background/95 backdrop-blur-sm">
-            <SelectItem value="">All Categories</SelectItem>
-            <SelectItem value="main-concept">Main Concepts</SelectItem>
-            <SelectItem value="actionable-insight">Actionable Insights</SelectItem>
-            <SelectItem value="content-suggestion">Content Suggestions</SelectItem>
-            <SelectItem value="key-takeaway">Key Takeaways</SelectItem>
+            {/* 🟢 non‑empty value */}
+            <SelectItem value="all">All Channels</SelectItem>
+
+            {channels.map((channel) => (
+              <SelectItem key={channel._id} value={channel._id}>
+                {channel.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button
