@@ -10,7 +10,19 @@ const localApi = axios.create({
   validateStatus: (status) => {
     return status >= 200 && status < 300;
   },
-  transformResponse: [(data) => JSONbig.parse(data)]
+  transformResponse: [(data) => {
+    if (typeof data === 'string') {
+      try {
+        // Try to parse as JSON
+        return JSONbig.parse(data);
+      } catch (error) {
+        // If parsing fails, return the raw string
+        console.warn('Failed to parse response as JSON:', error);
+        return data;
+      }
+    }
+    return data;
+  }]
 });
 
 

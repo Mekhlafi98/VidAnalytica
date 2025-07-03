@@ -39,8 +39,12 @@ app.use(sanitizeInput);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Database connection
-connectDB();
+// Database connection (optional in development)
+if (process.env.NODE_ENV === 'production') {
+  connectDB();
+} else {
+  console.log('Skipping database connection in development mode');
+}
 
 app.on("error", (error) => {
   console.error(`Server error: ${error.message}`);
