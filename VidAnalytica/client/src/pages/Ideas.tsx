@@ -18,25 +18,26 @@ import {
   Star,
   Heart,
   Download,
-  Filter,
   Lightbulb,
   Target,
   FileText,
-  Key
+  Key,
 } from "lucide-react"
 
 const categoryIcons = {
-  'main-concept': Lightbulb,
-  'actionable-insight': Target,
-  'content-suggestion': FileText,
-  'key-takeaway': Key
-}
+  "main-concept": Lightbulb,
+  "actionable-insight": Target,
+  "content-suggestion": FileText,
+  "key-takeaway": Key,
+} as const
 
-const categoryColors = {
-  'main-concept': 'text-yellow-600 bg-yellow-100',
-  'actionable-insight': 'text-blue-600 bg-blue-100',
-  'content-suggestion': 'text-green-600 bg-green-100',
-  'key-takeaway': 'text-purple-600 bg-purple-100'
+type CategoryKey = keyof typeof categoryIcons
+
+const categoryColors: Record<CategoryKey, string> = {
+  "main-concept": "text-yellow-600 bg-yellow-100",
+  "actionable-insight": "text-blue-600 bg-blue-100",
+  "content-suggestion": "text-green-600 bg-green-100",
+  "key-takeaway": "text-purple-600 bg-purple-100",
 }
 
 export function Ideas() {
@@ -45,36 +46,37 @@ export function Ideas() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedChannel, setSelectedChannel] = useState<string>("all")
-  const [categoryFilter, setCategoryFilter] = useState<string>("")
+  const [categoryFilter, setCategoryFilter] = useState<CategoryKey | "all">("all")
   const [showFavorites, setShowFavorites] = useState(false)
-  // 🟢 state starts at "all"
 
   const { toast } = useToast()
 
+  // 🔁 Re‑fetch whenever any filter changes
   useEffect(() => {
     loadData()
-  }, [selectedChannel, categoryFilter, showFavorites])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChannel, categoryFilter, showFavorites, searchTerm])
 
   const loadData = async () => {
     try {
       setLoading(true)
-      console.log('Loading ideas and channels...')
       const [ideasResponse, channelsResponse] = await Promise.all([
         getIdeas({
           channelId: selectedChannel !== "all" ? selectedChannel : undefined,
-          category: categoryFilter && categoryFilter !== "all" ? categoryFilter : undefined,
-          search: searchTerm || undefined
+          category: categoryFilter !== "all" ? categoryFilter : undefined,
+          search: searchTerm || undefined,
         }),
-        getChannels()
+        getChannels(),
       ])
-      let filteredIdeas = ideasResponse.ideas as Idea[]
+
+      let fetchedIdeas = ideasResponse.ideas as Idea[]
       if (showFavorites) {
-        filteredIdeas = filteredIdeas.filter(idea => idea.isFavorite)
+        fetchedIdeas = fetchedIdeas.filter((idea) => idea.isFavorite)
       }
-      setIdeas(filteredIdeas)
+
+      setIdeas(fetchedIdeas)
       setChannels(channelsResponse.channels as Channel[])
     } catch (error) {
-      console.error('Error loading data:', error)
       toast({
         title: "Error",
         description: "Failed to load ideas",
@@ -87,17 +89,12 @@ export function Ideas() {
 
   const handleRatingChange = async (ideaId: string, rating: number) => {
     try {
-      console.log('Updating idea rating:', ideaId, rating)
       await updateIdeaRating(ideaId, rating)
-      setIdeas(ideas.map(idea =>
-        idea._id === ideaId ? { ...idea, rating } : idea
-      ))
-      toast({
-        title: "Success",
-        description: "Rating updated successfully",
-      })
-    } catch (error) {
-      console.error('Error updating rating:', error)
+      setIdeas((prev) =>
+        prev.map((idea) => (idea._id === ideaId ? { ...idea, rating } : idea))
+      )
+      toast({ title: "Success", description: "Rating updated successfully" })
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update rating",
@@ -108,17 +105,17 @@ export function Ideas() {
 
   const handleToggleFavorite = async (ideaId: string, isFavorite: boolean) => {
     try {
-      console.log('Toggling favorite:', ideaId, !isFavorite)
       await toggleIdeaFavorite(ideaId, !isFavorite)
-      setIdeas(ideas.map(idea =>
-        idea._id === ideaId ? { ...idea, isFavorite: !isFavorite } : idea
-      ))
+      setIdeas((prev) =>
+        prev.map((idea) =>
+          idea._id === ideaId ? { ...idea, isFavorite: !isFavorite } : idea
+        )
+      )
       toast({
         title: "Success",
         description: isFavorite ? "Removed from favorites" : "Added to favorites",
       })
-    } catch (error) {
-      console.error('Error toggling favorite:', error)
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update favorite status",
@@ -127,21 +124,19 @@ export function Ideas() {
     }
   }
 
-  const handleExport = async (format: 'csv' | 'pdf') => {
+  const handleExport = async (format: "csv" | "pdf") => {
     try {
-      console.log('Exporting ideas:', format)
       const response = await exportIdeas(format, {
-        channelId: selectedChannel || undefined,
-        category: categoryFilter || undefined,
-        search: searchTerm || undefined
+        channelId: selectedChannel !== "all" ? selectedChannel : undefined,
+        category: categoryFilter !== "all" ? categoryFilter : undefined,
+        search: searchTerm || undefined,
       })
-      window.open(response.downloadUrl as string, '_blank')
+      window.open(response.downloadUrl as string, "_blank")
       toast({
         title: "Success",
         description: `Ideas exported as ${format.toUpperCase()}`,
       })
-    } catch (error) {
-      console.error('Error exporting ideas:', error)
+    } catch {
       toast({
         title: "Error",
         description: "Failed to export ideas",
@@ -150,27 +145,25 @@ export function Ideas() {
     }
   }
 
-  const renderStars = (rating: number, ideaId: string) => {
-    return (
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            onClick={() => handleRatingChange(ideaId, star)}
-            className="hover:scale-110 transition-transform"
-          >
-            <Star
-              className={`h-4 w-4 ${
-                star <= rating
-                  ? 'fill-yellow-400 text-yellow-400'
-                  : 'text-gray-300 hover:text-yellow-400'
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-    )
-  }
+  const renderStars = (rating: number, ideaId: string) => (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          onClick={() => handleRatingChange(ideaId, star)}
+          className="hover:scale-110 transition-transform"
+        >
+          <Star
+            className={`h-4 w-4 ${
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300 hover:text-yellow-400"
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  )
 
   if (loading) {
     return (
@@ -179,10 +172,10 @@ export function Ideas() {
           <h1 className="text-3xl font-bold">Ideas</h1>
         </div>
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-muted rounded"></div>
+          <div className="h-10 bg-muted rounded" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-48 bg-muted rounded"></div>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-48 bg-muted rounded" />
             ))}
           </div>
         </div>
@@ -202,20 +195,18 @@ export function Ideas() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => handleExport('csv')} variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            CSV
+          <Button onClick={() => handleExport("csv")} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" /> CSV
           </Button>
-          <Button onClick={() => handleExport('pdf')} size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            PDF
+          <Button onClick={() => handleExport("pdf")} size="sm">
+            <Download className="h-4 w-4 mr-2" /> PDF
           </Button>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-4">
         <div className="relative flex-1 min-w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Search ideas..."
             value={searchTerm}
@@ -223,29 +214,13 @@ export function Ideas() {
             className="pl-10 bg-background/50"
           />
         </div>
-        <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-          <SelectTrigger className="w-48 bg-background/50">
-            <SelectValue placeholder="All Channels" />
-          </SelectTrigger>
-          <SelectContent className="bg-background/95 backdrop-blur-sm">
-            <SelectItem value="">All Channels</SelectItem>
-            {channels.map((channel) => (
-              <SelectItem key={channel._id} value={channel._id}>
-                {channel.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-          <SelectTrigger className="w-48 bg-background/50">
-            {/* placeholder is only shown while value === "all" but you can omit it if you like */}
-            <SelectValue placeholder="All Channels" />
-          </SelectTrigger>
 
+        <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+          <SelectTrigger className="w-48 bg-background/50">
+            <SelectValue placeholder="All Channels" />
+          </SelectTrigger>
           <SelectContent className="bg-background/95 backdrop-blur-sm">
-            {/* 🟢 non‑empty value */}
             <SelectItem value="all">All Channels</SelectItem>
-
             {channels.map((channel) => (
               <SelectItem key={channel._id} value={channel._id}>
                 {channel.name}
@@ -253,11 +228,25 @@ export function Ideas() {
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-48 bg-background/50">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent className="bg-background/95 backdrop-blur-sm">
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="main-concept">Main Concepts</SelectItem>
+            <SelectItem value="actionable-insight">Actionable Insights</SelectItem>
+            <SelectItem value="content-suggestion">Content Suggestions</SelectItem>
+            <SelectItem value="key-takeaway">Key Takeaways</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Button
           variant={showFavorites ? "default" : "outline"}
           onClick={() => setShowFavorites(!showFavorites)}
         >
-          <Heart className={`h-4 w-4 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
+          <Heart className={`h-4 w-4 mr-2 ${showFavorites ? "fill-current" : ""}`} />
           Favorites
         </Button>
       </div>
@@ -266,9 +255,12 @@ export function Ideas() {
         {ideas.map((idea) => {
           const CategoryIcon = categoryIcons[idea.category]
           const categoryColor = categoryColors[idea.category]
-          
+
           return (
-            <Card key={idea._id} className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
+            <Card
+              key={idea._id}
+              className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
@@ -276,7 +268,7 @@ export function Ideas() {
                       <CategoryIcon className="h-4 w-4" />
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      {idea.category.replace('-', ' ')}
+                      {idea.category.replace("-", " ")}
                     </Badge>
                   </div>
                   <Button
@@ -285,7 +277,11 @@ export function Ideas() {
                     onClick={() => handleToggleFavorite(idea._id, idea.isFavorite)}
                     className="h-8 w-8"
                   >
-                    <Heart className={`h-4 w-4 ${idea.isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+                    <Heart
+                      className={`h-4 w-4 ${
+                        idea.isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"
+                      }`}
+                    />
                   </Button>
                 </div>
                 <CardTitle className="text-lg line-clamp-2">{idea.title}</CardTitle>
