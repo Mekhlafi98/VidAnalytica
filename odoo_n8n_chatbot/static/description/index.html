@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Odoo n8n Chatbot Integration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        
+        .feature-icon {
+            color: #667eea;
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .installation {
+            background: #e8f5e8;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+            margin: 30px 0;
+        }
+        
+        .installation h3 {
+            color: #155724;
+            margin-top: 0;
+        }
+        
+        .installation ol {
+            color: #155724;
+        }
+        
+        .code {
+            background: #f1f2f6;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: transform 0.2s;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🤖</div>
+            <h1>Odoo n8n Chatbot Integration</h1>
+            <p class="subtitle">Powerful workflow automation through natural language commands</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3><span class="feature-icon">💬</span>Natural Language Processing</h3>
+                <p>Trigger complex workflows using simple chat commands. The chatbot understands natural language and can extract parameters from your messages.</p>
+            </div>
+            
+            <div class="feature">
+                <h3><span class="feature-icon">🔗</span>n8n Integration</h3>
+                <p>Seamlessly connect with n8n workflows through webhooks. Support for callbacks, error handling, and comprehensive logging.</p>
+            </div>
+            
+            <div class="feature">
+                <h3><span class="feature-icon">🛡️</span>Enterprise Security</h3>
+                <p>Role-based access control, webhook signature validation, IP restrictions, and comprehensive audit trails.</p>
+            </div>
+            
+            <div class="feature">
+                <h3><span class="feature-icon">📊</span>Monitoring Dashboard</h3>
+                <p>Real-time monitoring of workflow executions, success rates, performance metrics, and detailed analytics.</p>
+            </div>
+            
+            <div class="feature">
+                <h3><span class="feature-icon">🔄</span>Retry & Recovery</h3>
+                <p>Automatic retry mechanisms, error handling, timeout management, and manual retry options for failed workflows.</p>
+            </div>
+            
+            <div class="feature">
+                <h3><span class="feature-icon">🎯</span>Smart Matching</h3>
+                <p>Advanced regex support, template variables, case-insensitive matching, and dynamic parameter extraction.</p>
+            </div>
+        </div>
+        
+        <div class="installation">
+            <h3>🚀 Quick Setup</h3>
+            <ol>
+                <li>Install the module in your Odoo instance</li>
+                <li>Configure n8n connection in Settings</li>
+                <li>Create your first workflow with trigger keywords</li>
+                <li>Set up corresponding webhook in n8n</li>
+                <li>Test through the chatbot interface</li>
+            </ol>
+            
+            <div class="code">
+                # Example chatbot command<br>
+                "Create a lead for John Doe with email john@example.com"
+            </div>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ Requirements:</strong> This module requires n8n to be installed and configured separately. 
+            Make sure you have proper webhook endpoints set up in your n8n instance.
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" class="btn">📖 Documentation</a>
+            <a href="#" class="btn">🛠️ Support</a>
+            <a href="https://n8n.io" class="btn" target="_blank">🔗 n8n Website</a>
+        </div>
+        
+        <div class="footer">
+            <p>Built for Odoo 16.0+ | Compatible with n8n Cloud & Self-hosted</p>
+            <p>© 2024 Your Company. Licensed under LGPL-3.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Root Menu -->
+        <menuitem id="menu_n8n_root" name="n8n Integration" sequence="100" web_icon="odoo_n8n_chatbot,static/description/icon.png" groups="group_n8n_user"/>
+        
+        <!-- Dashboard Menu -->
+        <menuitem id="menu_n8n_dashboard" name="Dashboard" parent="menu_n8n_root" sequence="10" action="action_n8n_dashboard" groups="group_n8n_user"/>
+        
+        <!-- Workflows Menu -->
+        <menuitem id="menu_n8n_workflows" name="Workflows" parent="menu_n8n_root" sequence="20" action="action_n8n_workflow" groups="group_n8n_manager"/>
+        
+        <!-- Execution Logs Menu -->
+        <menuitem id="menu_n8n_execution_logs" name="Execution Logs" parent="menu_n8n_root" sequence="30" action="action_n8n_execution_log" groups="group_n8n_user"/>
+        
+        <!-- Configuration Menu -->
+        <menuitem id="menu_n8n_configuration" name="Configuration" parent="menu_n8n_root" sequence="100" groups="group_n8n_admin"/>
+        
+        <!-- Settings Submenu -->
+        <record id="action_n8n_settings" model="ir.actions.act_window">
+            <field name="name">n8n Settings</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module': 'odoo_n8n_chatbot'}</field>
+        </record>
+        
+        <menuitem id="menu_n8n_settings" name="Settings" parent="menu_n8n_configuration" sequence="10" action="action_n8n_settings" groups="group_n8n_admin"/>
+        
+        <!-- User Groups Management -->
+        <record id="action_n8n_groups" model="ir.actions.act_window">
+            <field name="name">n8n User Groups</field>
+            <field name="res_model">res.groups</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('category_id.name', '=', 'n8n Integration')]</field>
+            <field name="context">{'search_default_category_id': [(6, 0, [ref('module_category_n8n')])]}</field>
+        </record>
+        
+        <menuitem id="menu_n8n_groups" name="User Groups" parent="menu_n8n_configuration" sequence="20" action="action_n8n_groups" groups="group_n8n_admin"/>
+        
+        <!-- Technical Menus (for developers) -->
+        <menuitem id="menu_n8n_technical" name="Technical" parent="menu_n8n_root" sequence="200" groups="base.group_no_one"/>
+        
+        <!-- Webhook Testing -->
+        <record id="action_webhook_test" model="ir.actions.server">
+            <field name="name">Test Webhook</field>
+            <field name="model_id" ref="model_n8n_workflow"/>
+            <field name="state">code</field>
+            <field name="code">
+                # This is a placeholder for webhook testing functionality
+                # In a real implementation, this would open a wizard to test webhooks
+                action = {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Webhook Test',
+                        'message': 'Webhook testing functionality would be implemented here',
+                        'type': 'info',
+                    }
+                }
+            </field>
+        </record>
+        
+        <menuitem id="menu_webhook_test" name="Webhook Test" parent="menu_n8n_technical" sequence="10" action="action_webhook_test" groups="base.group_no_one"/>
+        
+        <!-- System Parameters -->
+        <record id="action_n8n_system_parameters" model="ir.actions.act_window">
+            <field name="name">n8n System Parameters</field>
+            <field name="res_model">ir.config_parameter</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('key', 'like', 'odoo_n8n_chatbot.%')]</field>
+        </record>
+        
+        <menuitem id="menu_n8n_system_parameters" name="System Parameters" parent="menu_n8n_technical" sequence="20" action="action_n8n_system_parameters" groups="base.group_no_one"/>
+        
+    </data>
+</odoo>

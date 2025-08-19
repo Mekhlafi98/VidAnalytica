@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Inherit Settings View -->
+        <record id="res_config_settings_view_form_inherit_n8n" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.n8n</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('settings')]" position="inside">
+                    <div class="app_settings_block" data-string="n8n Integration" string="n8n Integration" data-key="odoo_n8n_chatbot">
+                        <h2>n8n Integration Settings</h2>
+                        
+                        <!-- Basic Configuration -->
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="n8n_integration_enabled" widget="boolean_toggle"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="n8n_integration_enabled"/>
+                                    <div class="text-muted">
+                                        Enable n8n workflow integration with Odoo chatbot
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="n8n_base_url"/>
+                                    <field name="n8n_base_url" placeholder="https://n8n.example.com"/>
+                                    <div class="text-muted">
+                                        Base URL of your n8n instance
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Authentication -->
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="n8n_global_api_key"/>
+                                    <field name="n8n_global_api_key" password="True" placeholder="Global API Key (optional)"/>
+                                    <div class="text-muted">
+                                        Global API key for n8n authentication. Can be overridden per workflow.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <button name="test_n8n_connection" string="Test Connection" type="object" class="btn btn-primary"/>
+                                    <div class="text-muted mt8">
+                                        Test connectivity to your n8n instance
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Webhook Security -->
+                        <h3 attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">Webhook Security</h3>
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="webhook_secret_key"/>
+                                    <field name="webhook_secret_key" password="True" placeholder="Secret key for webhook validation"/>
+                                    <div class="text-muted">
+                                        Secret key for validating webhook callbacks from n8n
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="webhook_allowed_ips"/>
+                                    <field name="webhook_allowed_ips" placeholder="192.168.1.100, 10.0.0.50"/>
+                                    <div class="text-muted">
+                                        Comma-separated list of allowed IP addresses. Leave empty to allow all.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Execution Settings -->
+                        <h3 attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">Execution Settings</h3>
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="default_timeout_seconds"/>
+                                    <field name="default_timeout_seconds"/>
+                                    <div class="text-muted">
+                                        Default timeout for workflow executions (seconds)
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="max_retry_attempts"/>
+                                    <field name="max_retry_attempts"/>
+                                    <div class="text-muted">
+                                        Maximum retry attempts for failed workflows
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rate Limiting -->
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="enable_rate_limiting" widget="boolean_toggle"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="enable_rate_limiting"/>
+                                    <div class="text-muted">
+                                        Enable rate limiting for workflow executions
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': ['|', ('n8n_integration_enabled', '=', False), ('enable_rate_limiting', '=', False)]}">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="rate_limit_per_user"/>
+                                    <field name="rate_limit_per_user"/>
+                                    <div class="text-muted">
+                                        Maximum executions per user per minute
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Logging Settings -->
+                        <h3 attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">Logging &amp; Monitoring</h3>
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="log_retention_days"/>
+                                    <field name="log_retention_days"/>
+                                    <div class="text-muted">
+                                        Number of days to keep execution logs
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="enable_debug_logging" widget="boolean_toggle"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="enable_debug_logging"/>
+                                    <div class="text-muted">
+                                        Enable detailed debug logging for troubleshooting
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <button name="cleanup_old_logs" string="Cleanup Old Logs" type="object" class="btn btn-warning"/>
+                                    <div class="text-muted mt8">
+                                        Manually cleanup old execution logs
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- UI Settings -->
+                        <h3 attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">User Interface</h3>
+                        <div class="row mt16 o_settings_container" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="show_execution_stats" widget="boolean_toggle"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="show_execution_stats"/>
+                                    <div class="text-muted">
+                                        Show execution statistics in workflow views
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="enable_workflow_dashboard" widget="boolean_toggle"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="enable_workflow_dashboard"/>
+                                    <div class="text-muted">
+                                        Enable the workflow monitoring dashboard
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Help Section -->
+                        <div class="row mt32" attrs="{'invisible': [('n8n_integration_enabled', '=', False)]}">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h4>Setup Guide</h4>
+                                    <ol>
+                                        <li>Install and configure n8n on your server</li>
+                                        <li>Set the n8n Base URL above</li>
+                                        <li>Create workflows in Odoo with trigger keywords</li>
+                                        <li>Configure corresponding webhook triggers in n8n</li>
+                                        <li>Test your workflows using the chatbot</li>
+                                    </ol>
+                                    <p class="mb-0">
+                                        <strong>Documentation:</strong> 
+                                        <a href="https://docs.n8n.io/" target="_blank">n8n Documentation</a> |
+                                        <a href="#" onclick="alert('Module documentation coming soon!')">Module Guide</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</odoo>

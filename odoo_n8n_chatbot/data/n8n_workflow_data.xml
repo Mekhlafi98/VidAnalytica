@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Default System Parameters -->
+        <record id="param_enable_integration" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.enable_integration</field>
+            <field name="value">True</field>
+        </record>
+        
+        <record id="param_default_timeout" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.default_timeout</field>
+            <field name="value">30</field>
+        </record>
+        
+        <record id="param_max_retries" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.max_retries</field>
+            <field name="value">3</field>
+        </record>
+        
+        <record id="param_log_retention_days" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.log_retention_days</field>
+            <field name="value">30</field>
+        </record>
+        
+        <record id="param_debug_logging" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.debug_logging</field>
+            <field name="value">False</field>
+        </record>
+        
+        <record id="param_rate_limiting" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.rate_limiting</field>
+            <field name="value">False</field>
+        </record>
+        
+        <record id="param_rate_limit_user" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.rate_limit_user</field>
+            <field name="value">10</field>
+        </record>
+        
+        <record id="param_show_stats" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.show_stats</field>
+            <field name="value">True</field>
+        </record>
+        
+        <record id="param_enable_dashboard" model="ir.config_parameter">
+            <field name="key">odoo_n8n_chatbot.enable_dashboard</field>
+            <field name="value">True</field>
+        </record>
+        
+        <!-- Assign default groups to admin user -->
+        <record id="assign_admin_groups" model="res.users">
+            <field name="id" ref="base.user_admin"/>
+            <field name="groups_id" eval="[(4, ref('group_n8n_admin'))]"/>
+        </record>
+        
+        <!-- Create a cron job for log cleanup -->
+        <record id="cron_cleanup_n8n_logs" model="ir.cron">
+            <field name="name">Cleanup n8n Execution Logs</field>
+            <field name="model_id" ref="model_n8n_execution_log"/>
+            <field name="state">code</field>
+            <field name="code">
+                retention_days = int(env['ir.config_parameter'].sudo().get_param('odoo_n8n_chatbot.log_retention_days', 30))
+                count = env['n8n.execution.log'].cleanup_old_logs(retention_days)
+                env['ir.logging'].sudo().create({
+                    'name': 'n8n.execution.log.cleanup',
+                    'type': 'server',
+                    'message': f'Cleaned up {count} old n8n execution logs',
+                    'level': 'INFO',
+                })
+            </field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+            <field name="user_id" ref="base.user_admin"/>
+        </record>
+        
+    </data>
+</odoo>
