@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- n8n Execution Log Tree View -->
+        <record id="view_n8n_execution_log_tree" model="ir.ui.view">
+            <field name="name">n8n.execution.log.tree</field>
+            <field name="model">n8n.execution.log</field>
+            <field name="arch" type="xml">
+                <tree string="Execution Logs" decoration-success="status == 'success'" 
+                      decoration-danger="status == 'error'" decoration-warning="status in ('pending', 'timeout')"
+                      decoration-info="status == 'pending_callback'">
+                    <field name="create_date" string="Executed At"/>
+                    <field name="workflow_name"/>
+                    <field name="user_name"/>
+                    <field name="status" widget="badge" 
+                           decoration-success="status == 'success'"
+                           decoration-danger="status == 'error'"
+                           decoration-warning="status in ('pending', 'timeout')"
+                           decoration-info="status == 'pending_callback'"/>
+                    <field name="message_body" string="Trigger Message"/>
+                    <field name="execution_time_ms" string="Duration (ms)"/>
+                    <field name="retry_count" string="Retries"/>
+                    <field name="callback_received_at" string="Callback At"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- n8n Execution Log Form View -->
+        <record id="view_n8n_execution_log_form" model="ir.ui.view">
+            <field name="name">n8n.execution.log.form</field>
+            <field name="model">n8n.execution.log</field>
+            <field name="arch" type="xml">
+                <form string="Execution Log" create="false">
+                    <header>
+                        <button name="retry_execution" string="Retry" type="object" 
+                                class="btn-primary" attrs="{'invisible': [('status', 'not in', ['error', 'timeout'])]}"/>
+                        <button name="action_view_workflow" string="View Workflow" type="object" 
+                                class="btn-secondary"/>
+                        <field name="status" widget="statusbar" statusbar_visible="pending,pending_callback,success,error"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="workflow_id" readonly="1"/>
+                                <field name="user_id" readonly="1"/>
+                                <field name="create_date" string="Executed At" readonly="1"/>
+                                <field name="callback_received_at" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="execution_time_ms" readonly="1"/>
+                                <field name="http_status_code" readonly="1"/>
+                                <field name="retry_count" readonly="1"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Request Details" name="request">
+                                <group>
+                                    <field name="message_body" widget="text" readonly="1"/>
+                                </group>
+                                <separator string="Sent Payload"/>
+                                <field name="payload" widget="text" readonly="1" 
+                                       options="{'mode': 'json'}" nolabel="1"/>
+                                <separator string="Extracted Variables" attrs="{'invisible': [('extracted_variables', '=', False)]}"/>
+                                <field name="extracted_variables" widget="text" readonly="1" 
+                                       options="{'mode': 'json'}" nolabel="1"
+                                       attrs="{'invisible': [('extracted_variables', '=', False)]}"/>
+                            </page>
+                            
+                            <page string="Response Details" name="response">
+                                <separator string="Initial Response" attrs="{'invisible': [('response_data', '=', False)]}"/>
+                                <field name="response_data" widget="text" readonly="1" 
+                                       options="{'mode': 'json'}" nolabel="1"
+                                       attrs="{'invisible': [('response_data', '=', False)]}"/>
+                                
+                                <separator string="Callback Data" attrs="{'invisible': [('callback_data', '=', False)]}"/>
+                                <field name="callback_data" widget="text" readonly="1" 
+                                       options="{'mode': 'json'}" nolabel="1"
+                                       attrs="{'invisible': [('callback_data', '=', False)]}"/>
+                                
+                                <separator string="Error Details" attrs="{'invisible': [('error_message', '=', False)]}"/>
+                                <field name="error_message" widget="text" readonly="1" nolabel="1"
+                                       attrs="{'invisible': [('error_message', '=', False)]}"/>
+                            </page>
+                            
+                            <page string="Channel Info" name="channel" attrs="{'invisible': [('channel_info', '=', False)]}">
+                                <field name="channel_info" widget="text" readonly="1" 
+                                       options="{'mode': 'json'}" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- n8n Execution Log Search View -->
+        <record id="view_n8n_execution_log_search" model="ir.ui.view">
+            <field name="name">n8n.execution.log.search</field>
+            <field name="model">n8n.execution.log</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="workflow_name" string="Workflow"/>
+                    <field name="user_name" string="User"/>
+                    <field name="message_body" string="Message"/>
+                    <field name="error_message" string="Error"/>
+                    
+                    <filter string="Today" name="today" 
+                            domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                     ('create_date', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                    <filter string="This Week" name="this_week" 
+                            domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                    <filter string="This Month" name="this_month" 
+                            domain="[('create_date', '&gt;=', datetime.datetime.now().strftime('%Y-%m-01'))]"/>
+                    
+                    <separator/>
+                    <filter string="Successful" name="success" domain="[('status', '=', 'success')]"/>
+                    <filter string="Failed" name="failed" domain="[('status', '=', 'error')]"/>
+                    <filter string="Pending" name="pending" domain="[('status', 'in', ['pending', 'pending_callback'])]"/>
+                    <filter string="Timed Out" name="timeout" domain="[('status', '=', 'timeout')]"/>
+                    
+                    <separator/>
+                    <filter string="With Retries" name="with_retries" domain="[('retry_count', '&gt;', 0)]"/>
+                    <filter string="With Errors" name="with_errors" domain="[('error_message', '!=', False)]"/>
+                    <filter string="With Callbacks" name="with_callbacks" domain="[('callback_received_at', '!=', False)]"/>
+                    
+                    <group expand="0" string="Group By">
+                        <filter string="Workflow" name="group_workflow" domain="[]" context="{'group_by': 'workflow_id'}"/>
+                        <filter string="User" name="group_user" domain="[]" context="{'group_by': 'user_id'}"/>
+                        <filter string="Status" name="group_status" domain="[]" context="{'group_by': 'status'}"/>
+                        <filter string="Date" name="group_date" domain="[]" context="{'group_by': 'create_date:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- n8n Execution Log Pivot View -->
+        <record id="view_n8n_execution_log_pivot" model="ir.ui.view">
+            <field name="name">n8n.execution.log.pivot</field>
+            <field name="model">n8n.execution.log</field>
+            <field name="arch" type="xml">
+                <pivot string="Execution Statistics">
+                    <field name="workflow_name" type="row"/>
+                    <field name="status" type="col"/>
+                    <field name="execution_time_ms" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        
+        <!-- n8n Execution Log Graph View -->
+        <record id="view_n8n_execution_log_graph" model="ir.ui.view">
+            <field name="name">n8n.execution.log.graph</field>
+            <field name="model">n8n.execution.log</field>
+            <field name="arch" type="xml">
+                <graph string="Execution Trends">
+                    <field name="create_date" type="row" interval="day"/>
+                    <field name="status" type="col"/>
+                </graph>
+            </field>
+        </record>
+        
+        <!-- Actions -->
+        <record id="action_n8n_execution_log" model="ir.actions.act_window">
+            <field name="name">Execution Logs</field>
+            <field name="res_model">n8n.execution.log</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="context">{'search_default_this_week': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No execution logs yet
+                </p>
+                <p>
+                    Execution logs will appear here when workflows are triggered through the chatbot.
+                    You can monitor performance, debug issues, and retry failed executions.
+                </p>
+            </field>
+        </record>
+        
+        <!-- Server Action for Cleanup -->
+        <record id="action_cleanup_old_logs" model="ir.actions.server">
+            <field name="name">Cleanup Old Logs</field>
+            <field name="model_id" ref="model_n8n_execution_log"/>
+            <field name="state">code</field>
+            <field name="code">
+                count = env['n8n.execution.log'].cleanup_old_logs(30)
+                env.user.notify_info(f'Cleaned up {count} old execution logs')
+            </field>
+        </record>
+        
+    </data>
+</odoo>

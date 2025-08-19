@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Demo Workflow 1: Create Lead -->
+        <record id="demo_workflow_create_lead" model="n8n.workflow">
+            <field name="name">Create Lead</field>
+            <field name="description">Creates a new lead in the CRM system</field>
+            <field name="sequence">10</field>
+            <field name="active">False</field>
+            <field name="trigger_keywords">create lead
+create a lead
+new lead
+add lead</field>
+            <field name="regex_mode">False</field>
+            <field name="case_sensitive">False</field>
+            <field name="n8n_webhook_url">https://your-n8n-instance.com/webhook/create-lead</field>
+            <field name="webhook_method">POST</field>
+            <field name="expect_callback">True</field>
+            <field name="timeout_seconds">30</field>
+            <field name="template_variables">{"customer_name": "(?P&lt;customer_name&gt;[A-Z][a-z]+ [A-Z][a-z]+)", "email": "(?P&lt;email&gt;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})", "phone": "(?P&lt;phone&gt;\\+?[0-9\\s\\-\\(\\)]{10,})"}</field>
+            <field name="response_template">Creating a new lead for {customer_name}... Please wait while I process this request.</field>
+            <field name="log_executions">True</field>
+        </record>
+        
+        <!-- Demo Workflow 2: Send Email -->
+        <record id="demo_workflow_send_email" model="n8n.workflow">
+            <field name="name">Send Email</field>
+            <field name="description">Sends an email using n8n automation</field>
+            <field name="sequence">20</field>
+            <field name="active">False</field>
+            <field name="trigger_keywords">send email
+email to
+send message</field>
+            <field name="regex_mode">True</field>
+            <field name="case_sensitive">False</field>
+            <field name="n8n_webhook_url">https://your-n8n-instance.com/webhook/send-email</field>
+            <field name="webhook_method">POST</field>
+            <field name="expect_callback">True</field>
+            <field name="timeout_seconds">45</field>
+            <field name="template_variables">{"recipient": "(?P&lt;recipient&gt;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})", "subject": "(?P&lt;subject&gt;subject:?\\s*(.+?)(?=\\s+body:|$))", "body": "(?P&lt;body&gt;body:?\\s*(.+))"}</field>
+            <field name="response_template">Sending email to {recipient} with subject '{subject}'... Please wait.</field>
+            <field name="log_executions">True</field>
+        </record>
+        
+        <!-- Demo Workflow 3: Generate Report -->
+        <record id="demo_workflow_generate_report" model="n8n.workflow">
+            <field name="name">Generate Report</field>
+            <field name="description">Generates various reports using n8n</field>
+            <field name="sequence">30</field>
+            <field name="active">False</field>
+            <field name="trigger_keywords">generate report
+create report
+sales report
+monthly report</field>
+            <field name="regex_mode">False</field>
+            <field name="case_sensitive">False</field>
+            <field name="n8n_webhook_url">https://your-n8n-instance.com/webhook/generate-report</field>
+            <field name="webhook_method">POST</field>
+            <field name="expect_callback">True</field>
+            <field name="timeout_seconds">60</field>
+            <field name="template_variables">{"report_type": "(?P&lt;report_type&gt;sales|monthly|weekly|daily)", "period": "(?P&lt;period&gt;\\d{4}-\\d{2}|\\d{4}|last month|this month)"}</field>
+            <field name="response_template">Generating {report_type} report for {period}... This may take a moment.</field>
+            <field name="log_executions">True</field>
+        </record>
+        
+        <!-- Demo Workflow 4: Create Task -->
+        <record id="demo_workflow_create_task" model="n8n.workflow">
+            <field name="name">Create Task</field>
+            <field name="description">Creates a new task in project management</field>
+            <field name="sequence">40</field>
+            <field name="active">False</field>
+            <field name="trigger_keywords">create task
+new task
+add task
+task for</field>
+            <field name="regex_mode">True</field>
+            <field name="case_sensitive">False</field>
+            <field name="n8n_webhook_url">https://your-n8n-instance.com/webhook/create-task</field>
+            <field name="webhook_method">POST</field>
+            <field name="expect_callback">True</field>
+            <field name="timeout_seconds">30</field>
+            <field name="template_variables">{"task_name": "(?P&lt;task_name&gt;task:?\\s*(.+?)(?=\\s+for|due|$))", "assignee": "(?P&lt;assignee&gt;for\\s+([A-Z][a-z]+ [A-Z][a-z]+))", "due_date": "(?P&lt;due_date&gt;due\\s+(\\d{4}-\\d{2}-\\d{2}|tomorrow|next week))"}</field>
+            <field name="response_template">Creating task '{task_name}' for {assignee}... Task will be created shortly.</field>
+            <field name="log_executions">True</field>
+        </record>
+        
+        <!-- Demo Workflow 5: Simple Webhook Test -->
+        <record id="demo_workflow_webhook_test" model="n8n.workflow">
+            <field name="name">Webhook Test</field>
+            <field name="description">Simple webhook test for development</field>
+            <field name="sequence">100</field>
+            <field name="active">False</field>
+            <field name="trigger_keywords">test webhook
+webhook test
+test n8n</field>
+            <field name="regex_mode">False</field>
+            <field name="case_sensitive">False</field>
+            <field name="n8n_webhook_url">https://webhook.site/unique-url-here</field>
+            <field name="webhook_method">POST</field>
+            <field name="expect_callback">False</field>
+            <field name="timeout_seconds">10</field>
+            <field name="response_template">Testing webhook connection... Check your webhook.site for the payload.</field>
+            <field name="log_executions">True</field>
+        </record>
+        
+        <!-- Assign demo workflows to specific groups (commented out by default) -->
+        <!--
+        <record id="demo_workflow_create_lead" model="n8n.workflow">
+            <field name="allowed_group_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        -->
+        
+    </data>
+</odoo>

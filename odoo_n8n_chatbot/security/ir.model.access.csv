@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_n8n_workflow_user,n8n.workflow user,model_n8n_workflow,group_n8n_user,1,0,0,0
+access_n8n_workflow_manager,n8n.workflow manager,model_n8n_workflow,group_n8n_manager,1,1,1,0
+access_n8n_workflow_admin,n8n.workflow admin,model_n8n_workflow,group_n8n_admin,1,1,1,1
+access_n8n_execution_log_user,n8n.execution.log user,model_n8n_execution_log,group_n8n_user,1,0,0,0
+access_n8n_execution_log_manager,n8n.execution.log manager,model_n8n_execution_log,group_n8n_manager,1,1,0,0
+access_n8n_execution_log_admin,n8n.execution.log admin,model_n8n_execution_log,group_n8n_admin,1,1,1,1
+access_res_config_settings_admin,res.config.settings admin,base.model_res_config_settings,group_n8n_admin,1,1,0,0
